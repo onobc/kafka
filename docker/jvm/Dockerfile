@@ -62,7 +62,7 @@ LABEL org.label-schema.name="kafka" \
 RUN set -eux ; \
     apk update ; \
     apk upgrade ; \
-    apk add --no-cache wget gcompat gpg gpg-agent procps bash; \
+    apk add --no-cache wget gcompat gpg gpg-agent procps bash docker-cli; \
     mkdir opt/kafka; \
     wget -nv -O kafka.tgz "$kafka_url"; \
     wget -nv -O kafka.tgz.asc "$kafka_url.asc"; \
@@ -87,9 +87,11 @@ COPY --from=build-jsa kafka.jsa /opt/kafka/kafka.jsa
 COPY --from=build-jsa storage.jsa /opt/kafka/storage.jsa
 COPY --chown=appuser:appuser resources/common-scripts /etc/kafka/docker
 COPY --chown=appuser:appuser launch /etc/kafka/docker/launch
+COPY entrypoint.sh /etc/kafka/docker/entrypoint.sh
 
 USER appuser
 
 VOLUME ["/etc/kafka/secrets", "/var/lib/kafka/data", "/mnt/shared/config"]
 
-CMD ["/etc/kafka/docker/run"]
+USER root
+ENTRYPOINT [ "/etc/kafka/docker/entrypoint.sh" ]

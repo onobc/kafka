@@ -119,3 +119,13 @@ then
     echo "KAFKA_OPTS should contain 'com.sun.management.jmxremote.rmi.port' property. It is required for accessing the JMX metrics externally."
   fi
 fi
+
+if [[ -n "$PORT_COMMAND" ]]; then
+    PORT_VALUE=$(eval "$PORT_COMMAND")
+    # Replace any occurrences of _{PORT_COMMAND} with the value
+    for VAR in $(env); do
+        if [[ $VAR =~ ^KAFKA_ && "$VAR" =~ "_{PORT_COMMAND}" ]]; then
+	        eval "export ${VAR//_\{PORT_COMMAND\}/$PORT_VALUE}"
+        fi
+    done
+fi
